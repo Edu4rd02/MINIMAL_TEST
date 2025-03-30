@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.secret_key = "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"
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
-GOOOGLE_CLIENT_ID = "196038969225-eebje5m13p7c9qfut5sh3qi241kqp6hr.apps.googleusercontent.com"
+GOOOGLE_CLIENT_ID = "846548093542-oip7o7ucj5a9ioopb8hfe5neufmqk4j1.apps.googleusercontent.com"
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, 'client_secret.json')
 
 flow = Flow.from_client_secrets_file(
