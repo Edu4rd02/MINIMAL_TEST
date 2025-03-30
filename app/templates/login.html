@@ -31,6 +31,11 @@
         <h1>Acceso Administrador</h1>
         <p class="login-subtitle">Inicia sesión para gestionar productos y más</p>
 
+        <a href="{{ url_for('login_with_google') }}" class="google-btn">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
+          Iniciar sesión con Google
+        </a>
+
         <form class="login-form" action="{{ url_for('login') }}" method="POST">
             <div class="form-group">
                 <label for="username">Usuario</label>

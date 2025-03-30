@@ -1,23 +1,90 @@
 import sys
 import os
 
-# Agrega 'static' a sys.path
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'static')))
-# static_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
-# print("Ruta a static:", static_path)
-# print("¿Existe la carpeta 'static'? ", os.path.exists(static_path))
-# import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'static')))
 print(sys.path)
 
-
-
-from flask import Flask, redirect, render_template, request, url_for, session, flash
+from google.oauth2 import id_token
+from google_auth_oauthlib.flow import Flow
+import google.auth.transport.requests
+import pathlib
+import requests
+from pip._vendor import cachecontrol
+from flask import Flask, abort, redirect, render_template, request, url_for, session, flash
 import psycopg2
 from db.db_actions import get_products, create_product, edit_product, delete_product
 
 app = Flask(__name__)   
-app.secret_key = 'clave_secreta_minimal'
+
+app.secret_key = "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"
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+GOOOGLE_CLIENT_ID = "196038969225-eebje5m13p7c9qfut5sh3qi241kqp6hr.apps.googleusercontent.com"
+client_secrets_file = os.path.join(pathlib.Path(__file__).parent, 'client_secret.json')
+
+flow = Flow.from_client_secrets_file(
+    client_secrets_file=client_secrets_file,
+    scopes = ["openid", "https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"],
+    redirect_uri="https://minimal-dvis.onrender.com/auth/google/callback"
+)
+
+def login_required(f):
+    def wrapper(*args, **kwargs):
+        if 'google_id' not in session:  
+            return abort(401)
+        else:
+            return f()
+    return wrapper
+
+@app.route('/login_with_google')
+def login_with_google():
+    authorization_url, state = flow.authorization_url()
+    session['state'] = state
+    return redirect(authorization_url)
+
+@app.route('/auth/google/callback')
+def callback():
+    flow.fetch_token(authorization_response=request.url)
+
+    if not session['state'] == request.args['state']:
+        print(f"State mismatch: {session['state']} != {request.args['state']}")
+        abort(500)
+
+    credentials = flow.credentials
+    request_session = requests.session()
+    cached_session = cachecontrol.CacheControl(request_session)
+    token_request = google.auth.transport.requests.Request(session=cached_session)
+    
+    id_info = id_token.verify_oauth2_token(
+        id_token=credentials.id_token,
+        request=token_request,
+        audience=GOOOGLE_CLIENT_ID
+
+    )
+    session['google_id'] = id_info['sub']
+    session['name'] = id_info['name']
+    session['email'] = id_info['email']
+    print(f"User {session['name']} logged in with Google.")
+    return redirect('/')
+
+
+@app.route('/api/user-info', methods=['GET'])
+def get_user_info():
+    # Verificar si el usuario está autenticado con Google o como admin
+    if 'google_id' in session:
+        # Usuario autenticado con Google
+        return {
+            'isLoggedIn': True,
+            'name': session.get('name', ''),
+            'email': session.get('email', ''),
+            'authType': 'google'
+        }
+    else:
+        # Usuario no autenticado
+        return {
+            'isLoggedIn': False
+        }
+
 
 @app.route('/')
 def index():
@@ -52,7 +119,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.pop('logged_in', None)
+    session.clear()
     return redirect(url_for('index'))
 
 @app.route('/add_product', methods=['POST'])
@@ -64,7 +131,6 @@ def add_product_route():
     # Si los datos están correctos, ejecuta la inserción
     if product_name and product_price and product_image:
         create_product(product_price, product_image, product_name)
-        products = get_products()
         return redirect(url_for('administrador'))
     else:
         return 'Error en el servidor', 400

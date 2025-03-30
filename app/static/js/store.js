@@ -111,6 +111,44 @@ function removeCartItem(index) {
   renderCartItems();
 }
 
+
+// Función para proceder al checkout
+function proceedToCheckout() {
+  // Verificar el estado de autenticación usando el nuevo endpoint
+  fetch('/api/user-info')
+      .then(response => response.json())
+      .then(data => {
+          if (data.isLoggedIn) {
+              // Usuario autenticado, proceder con la compra
+              completeCheckout(data);
+          } else {
+              // Usuario no autenticado, redirigir a login
+              alert('Por favor inicia sesión para completar tu compra');
+              window.location.href = '/login_with_google';
+          }
+      })
+      .catch(error => {
+          console.error('Error al verificar la autenticación:', error);
+          alert('Ocurrió un error al procesar tu compra. Por favor, intenta de nuevo más tarde.');
+      });
+}
+
+// Función para completar el proceso de checkout
+function completeCheckout(userData) {
+  // Mostrar mensaje personalizado con el nombre del usuario
+  const userName = userData.name || 'cliente';
+  alert(`¡Gracias por tu compra, ${userName}! Tu pedido ha sido procesado correctamente.`);
+  
+  // Limpiar el carrito
+  cart = [];
+  renderCartItems();
+  saveCartToLocalStorage(cart);
+  
+  // Cerrar el panel del carrito
+  closeCart();
+
+}
+
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
   // Botón de carrito
@@ -155,10 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Renderizar items existentes al cargar
   renderCartItems();
-});
-
-// Botón de pago (checkout)
-document.querySelector('.checkout-btn').addEventListener('click', () => {
-  alert('Gracias por tu compra. Próximamente la funcionalidad de pago.');
-  // Aquí puedes agregar la lógica de redireccionamiento a pasarela de pago
+  
+  // Botón de pago (checkout)
+  document.querySelector('.checkout-btn').addEventListener('click', proceedToCheckout)
 });
