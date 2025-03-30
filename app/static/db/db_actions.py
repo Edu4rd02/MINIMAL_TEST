@@ -1,4 +1,9 @@
-from static.db.connection import get_db_connection, close_db_connection
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'static')))
+print(sys.path)
+
+from db.connection import get_db_connection, close_db_connection
 import psycopg2
 
 def get_products():
