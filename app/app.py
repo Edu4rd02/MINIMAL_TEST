@@ -2,13 +2,21 @@ import sys
 import os
 
 # Agrega 'static' a sys.path
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'static')))
+# static_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
+# print("Ruta a static:", static_path)
+# print("¿Existe la carpeta 'static'? ", os.path.exists(static_path))
+# import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'static')))
+print(sys.path)
+
+
 
 from flask import Flask, redirect, render_template, request, url_for, session, flash
 import psycopg2
-from static.db.db_actions import get_products, create_product, edit_product, delete_product
+from db.db_actions import get_products, create_product, edit_product, delete_product
 
-app = Flask(__name__)
+app = Flask(__name__)   
 app.secret_key = 'clave_secreta_minimal'
 
 @app.route('/')
