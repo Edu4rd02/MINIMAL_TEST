@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&
+  family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&
+  family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=SUSE:wght@100..800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}" />
+  <script src="https://kit.fontawesome.com/337be747ec.js" crossorigin="anonymous"></script>
+  <title>MINIMAL - Store</title>
+</head>
+
+<body>
+  <header class="main-header">
+    <div class="mini-header">
+      <div class="admin-link">
+        <a href="{{ url_for('login') }}">Acceso Admin</a>
+      </div>
+    </div>
+    <div class="primary-header">
+      <div class="logo">MINIMAL</div>
+      <nav>
+        <ul>
+          <li><a href="{{ url_for('index') }}">Inicio</a></li>
+          <li><a href="{{ url_for('store') }}">Tienda</a></li>
+          <li><a href="#">Sobre Nosotros</a></li>
+          <li><a href="#">Contacto</a></li>
+        </ul>
+      </nav>
+      <div class="cart-icon">🛒</div>
+    </div>
+  </header>
+
+  <section class="store-container">
+    <div class="filters-sidebar">
+      <div class="filter-section">
+        <h4>Categorías</h4>
+        <ul>
+          <li><input type="checkbox" id="ropa-hombre"> <label for="ropa-hombre">Ropa Hombre</label></li>
+          <li><input type="checkbox" id="ropa-mujer"> <label for="ropa-mujer">Ropa Mujer</label></li>
+          <li><input type="checkbox" id="tenis"> <label for="tenis">Tenis</label></li>
+          <li><input type="checkbox" id="accesorios"> <label for="accesorios">Accesorios</label></li>
+        </ul>
+      </div>
+
+      <div class="filter-section">
+        <h4>Precio</h4>
+        <div class="price-range">
+          <input type="range" min="0" max="500" value="250" class="slider" id="price-range">
+          <div class="price-labels">
+            <span>$0</span>
+            <span id="price-value">$250</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <h4>Colección</h4>
+        <ul>
+          <li><input type="checkbox" id="urban"> <label for="urban">Colección Urban</label></li>
+          <li><input type="checkbox" id="nordica"> <label for="nordica">Colección Nórdica</label></li>
+          <li><input type="checkbox" id="minimal"> <label for="minimal">Colección Minimal</label></li>
+        </ul>
+      </div>
+
+      <div class="filter-section">
+        <h4>Talla</h4>
+        <div class="size-options">
+          <button>XS</button>
+          <button>S</button>
+          <button>M</button>
+          <button>L</button>
+          <button>XL</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="products-section">
+      <div class="products-header">
+        <h1>Todos los Productos</h1>
+        <div class="sort-options">
+          <label for="sort-select">Ordenar por:</label>
+          <select id="sort-select">
+            <option>Más Recientes</option>
+            <option>Precio: Menor a Mayor</option>
+            <option>Precio: Mayor a Menor</option>
+            <option>Más Populares</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="products-grid">
+
+        {% for product in products %}
+        <div class="product-card">
+          <div class="product-img">
+            <img src={{product.imageURL}} alt="Nike Blazer Mid '77">
+            <div class="quick-view">Vista Rápida</div>
+          </div>
+          <div class="product-info">
+            <h3 class="product-title">{{product.name}}</h3>
+            <div class="product-price">
+              <span>${{product.price}} MXN</span>
+              <span class="add-to-cart">+</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+  </section>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-about">
+        <h3>MINIMAL</h3>
+        <p>Nos dedicamos a crear productos minimalistas de alta calidad que transforman espacios y mejoran el estilo de vida. Cada pieza está diseñada con pasión y atención al detalle.</p>
+        <div class="social-icons">
+          <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-pinterest-p"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-linkedin"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-github"></i></a>
+        </div>
+      </div>
+      
+      <div class="footer-links">
+        <h4>Enlaces Rápidos</h4>
+        <ul>
+          <li><a href="#">Inicio</a></li>
+          <li><a href="{{ url_for('store') }}">Tienda</a></li>
+          <li><a href="#">Sobre Nosotros</a></li>
+          <li><a href="#">Contacto</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-links">
+        <h4>Información</h4>
+        <ul>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Envíos y Entregas</a></li>
+          <li><a href="#">Devoluciones</a></li>
+          <li><a href="#">Términos y Condiciones</a></li>
+          <li><a href="#">Política de Privacidad</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-links">
+        <h4>Contacto</h4>
+        <ul>
+          <li>Calle Ejemplo 123</li>
+          <li>Ciudad, CP 12345</li>
+          <li>info@estilo.com</li>
+          <li>+34 123 456 789</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="copyright">
+      &copy; 2025 MINIMAL. Todos los derechos reservados.
+    </div>
+  </footer>
+
+  <div class="cart-panel">
+    <div class="cart-header">
+      <h2>Tu Carrito</h2>
+      <button class="close-cart">&times;</button>
+    </div>
+    <div class="cart-items">
+      <!-- Cart items will be dynamically added here -->
+    </div>
+    <div class="cart-summary">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span class="total-price">$0.00</span>
+      </div>
+      <button class="checkout-btn">Proceder al Pago</button>
+    </div>
+  </div>
+
+  <div class="cart-overlay"></div>
+
+  <script src="{{ url_for('static', filename='js/store.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&
+  family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&
+  family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=SUSE:wght@100..800&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/administrador.css') }}" />
+  <script src="https://kit.fontawesome.com/337be747ec.js" crossorigin="anonymous"></script>
+  <title>MINIMAL - Panel Administrador</title>
+</head>
+
+<body>
+  <header class="main-header">
+    <div class="mini-header">
+      <div>
+        <h1>Panel Administrador</h1>
+      </div>
+      |
+      <a href="{{ url_for('logout') }}" class="logout-btn">Cerrar sesión</a>
+    </div>
+    <div class="primary-header">
+      <div class="logo">MINIMAL</div>
+      <nav>
+        <ul>
+          <li><a href="{{ url_for('index') }}">Inicio</a></li>
+          <li><a href="{{ url_for('store') }}">Tienda</a></li>
+          <li><a href="#">Sobre Nosotros</a></li>
+          <li><a href="#">Contacto</a></li>
+        </ul>
+      </nav>
+      <button class="add-product-btn" data-bs-toggle="modal" data-bs-target="#addModal"><i class="fas fa-plus"></i>
+        Agregar Producto</button>
+    </div>
+  </header>
+
+  <section class="store-container">
+    <div class="products-section">
+      <div class="products-header">
+        <h1>Gestión de Productos</h1>
+        <div class="sort-options">
+          <label for="sort-select">Ordenar por:</label>
+          <select id="sort-select">
+            <option>Más Recientes</option>
+            <option>Precio: Menor a Mayor</option>
+            <option>Precio: Mayor a Menor</option>
+            <option>Más Populares</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="products-grid">
+        {% for product in products %}
+        <div class="admin-product-card">
+          <div class="product-img">
+            <img src={{product.imageURL}} alt={{product.name}}>
+            <div class="admin-actions">
+              <button class="btn-primary" data-bs-toggle="modal" data-bs-target="#editModal{{product.id}}"><i
+                  class="fas fa-edit"></i></button>
+              <button class="delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal{{product.id}}"><i
+                  class="fas fa-trash-alt"></i></button>
+            </div>
+          </div>
+          <div class="product-info">
+            <h3 class="product-title">{{product.name}}</h3>
+            <div class="product-details">
+              <p class="product-id">ID: #{{product.id}}</p>
+              <p class="product-price">${{product.price}} MXN</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal con ID único para cada producto -->
+        <div class="modal fade" id="editModal{{ product.id }}" tabindex="-1"
+          aria-labelledby="editModalLabel{{ product.id }}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel{{ product.id }}">{{ product.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form action="/edit_product" method="post" id="productForm{{product.id}}">
+                  <div class="form-group">
+                    <label for="productID">ID:</label>
+                    <!-- This is only for visual purposes -->
+                    <input type="number" id="productID" name="productID" value={{product.id}} disabled>
+                    <!-- This is for sent it to the form -->
+                    <input type="hidden" name="productID" value="{{ product.id }}">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="productName">Nombre del Producto:</label>
+                    <input type="text" id="productName" name="productName" value="{{product.name}}" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="productPrice">Precio:</label>
+                    <input type="number" id="productPrice" name="productPrice" value="{{product.price}}" step="0.01"
+                      required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="productImage">URL de la imagen:</label>
+                    <input type="text" id="productImage" name="productImage" value="{{product.imageURL}}" required>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button class="cancel-btn" data-bs-dismiss="modal">Cancelar</button>
+                <button class="save-product-btn" type="submit" form="productForm{{product.id}}">Guardar Cambios</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Modal para eliminar un producto-->
+        <div class="modal fade" id="deleteModal{{ product.id }}" tabindex="-1"
+          aria-labelledby="deleteModalLabel{{ product.id }}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h2>Confirmar Eliminación</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar este producto?</p>
+                <p class="product-to-delete">Nombre del producto: {{product.name}}</p>
+                <form action="/delete_product" method="post" id="deleteProduct{{product.id}}">
+                  <div class="form-group">
+                    <label for="productID">ID:</label>
+                    <!-- This is only for visual purposes -->
+                    <input type="number" id="productID" name="productID" value={{product.id}} disabled>
+                    <!-- This is for sent it to the form -->
+                    <input type="hidden" name="productID" value="{{ product.id }}">
+                  </div>
+                </form>
+                <div class="warning-message">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <p>Esta acción no se puede deshacer.</p>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="cancel-btn" data-bs-dismiss="modal">Cancelar</button>
+                <button class="confirm-delete-btn" type="submit" form="deleteProduct{{product.id}}">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Modal para agregar un nuevo producto -->
+      <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addModalLabel">Agregar producto</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="/add_product" method="post" id="addProductForm">
+                <div class="form-group">
+                  <label for="productName">Nombre del Producto:</label>
+                  <input type="text" id="productName" name="productName" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="productPrice">Precio:</label>
+                  <input type="number" id="productPrice" name="productPrice" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="productImage">URL de la imagen:</label>
+                  <input type="text" id="productImage" name="productImage" required>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button class="cancel-btn" data-bs-dismiss="modal">Cancelar</button>
+              <button class="save-product-btn" type="submit" form="addProductForm">Guardar Cambios</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pagination">
+        <button class="prev-page">Anterior</button>
+        <div class="page-numbers">
+          <span class="active">1</span>
+          <span>2</span>
+          <span>3</span>
+          <span>4</span>
+        </div>
+        <button class="next-page">Siguiente</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-about">
+        <h3>MINIMAL</h3>
+        <p>Nos dedicamos a crear productos minimalistas de alta calidad que transforman espacios y mejoran el estilo de
+          vida. Cada pieza está diseñada con pasión y atención al detalle.</p>
+        <div class="social-icons">
+          <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-pinterest-p"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-linkedin"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-github"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <h4>Enlaces Rápidos</h4>
+        <ul>
+          <li><a href="#">Inicio</a></li>
+          <li><a href="#">Tienda</a></li>
+          <li><a href="#">Sobre Nosotros</a></li>
+          <li><a href="#">Contacto</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h4>Información</h4>
+        <ul>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Envíos y Entregas</a></li>
+          <li><a href="#">Devoluciones</a></li>
+          <li><a href="#">Términos y Condiciones</a></li>
+          <li><a href="#">Política de Privacidad</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h4>Contacto</h4>
+        <ul>
+          <li>Calle Ejemplo 123</li>
+          <li>Ciudad, CP 12345</li>
+          <li>info@estilo.com</li>
+          <li>+34 123 456 789</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="copyright">
+      &copy; 2025 MINIMAL. Todos los derechos reservados.
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/administrador.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
