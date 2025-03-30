@@ -64,7 +64,6 @@ def callback():
     session['google_id'] = id_info['sub']
     session['name'] = id_info['name']
     session['email'] = id_info['email']
-    print(f"User {session['name']} logged in with Google.")
     return redirect('/')
 
 
@@ -162,4 +161,4 @@ def delete_product_route():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
