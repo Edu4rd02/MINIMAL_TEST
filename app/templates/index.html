@@ -18,7 +18,11 @@
   <header class="main-header">
     <div class="mini-header">
       <div class="admin-link">
-        <a href="{{ url_for('login') }}">Acceso Admin</a>
+        {% if thereSession %}
+        <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+        {% else %}
+        <a href="{{ url_for('login') }}">Iniciar sesión</a>
+        {% endif %}
       </div>
     </div>
     <div class="primary-header">

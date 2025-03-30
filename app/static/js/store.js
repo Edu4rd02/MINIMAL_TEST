@@ -112,17 +112,17 @@ function removeCartItem(index) {
 }
 
 
-// Función para proceder al checkout
+// Función para proceder al pago
 function proceedToCheckout() {
-  // Verificar el estado de autenticación usando el nuevo endpoint
+  // Uso de función de Python en el app.py para verificar si el usuario inició sesión
   fetch('/api/user-info')
       .then(response => response.json())
       .then(data => {
           if (data.isLoggedIn) {
-              // Usuario autenticado, proceder con la compra
+              // Si el usuario si inició sesión, se procesa el pago
               completeCheckout(data);
           } else {
-              // Usuario no autenticado, redirigir a login
+              // En caso de que no haya iniciado sesión, se le redirige a la pagina de login para que inicie sesión
               alert('Por favor inicia sesión para completar tu compra');
               window.location.href = '/login_with_google';
           }
@@ -133,10 +133,10 @@ function proceedToCheckout() {
       });
 }
 
-// Función para completar el proceso de checkout
+// Función para completar el proceso de pago
 function completeCheckout(userData) {
   // Mostrar mensaje personalizado con el nombre del usuario
-  const userName = userData.name || 'cliente';
+  const userName = userData.name;
   alert(`¡Gracias por tu compra, ${userName}! Tu pedido ha sido procesado correctamente.`);
   
   // Limpiar el carrito
