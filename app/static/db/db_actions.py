@@ -22,10 +22,14 @@ def get_products():
 
 
 #Funcion para crear y agregar un nuevo producto a la base de datos
-def create_product(price, imageURL, name):
+def create_product(price, imageURL, name, conn=None, cur=None,autocommit=True):
     conn, cur = get_db_connection()
     cur.execute('INSERT INTO products (price, "imageURL", name) VALUES (%s, %s, %s)', (price, imageURL, name))
-    conn.commit()
+    if autocommit:
+        conn.commit()
+    else:
+        # Si no se quiere hacer commit automático, se puede dejar el commit para después
+        pass
     close_db_connection(conn, cur)
 
 #Funcion para borrar un producto de la base de datos

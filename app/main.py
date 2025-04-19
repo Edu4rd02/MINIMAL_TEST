@@ -14,6 +14,7 @@ from pip._vendor import cachecontrol
 from flask import Flask, abort, redirect, render_template, request, url_for, session, flash
 import psycopg2
 from db.db_actions import get_products, create_product, edit_product, delete_product
+from db.connection import get_db_connection, close_db_connection
 
 app = Flask(__name__)   
 
@@ -144,7 +145,8 @@ def add_product_route():
 
     # Si los datos están correctos, ejecuta la inserción
     if product_name and product_price and product_image:
-        create_product(product_price, product_image, product_name)
+        conn, cur = get_db_connection()  # Obtienes la conexión (esta será la que te da el fixture en las pruebas)
+        create_product(product_price, product_image, product_name, conn=conn, cur=cur)
         return redirect(url_for('administrador'))
     else:
         return 'Error en el servidor', 400
