@@ -22,7 +22,7 @@ def get_products():
 
 
 #Funcion para crear y agregar un nuevo producto a la base de datos
-def create_product(price, imageURL, name, conn=None, cur=None,autocommit=True):
+def create_product(price, imageURL, name, autocommit=True):
     conn, cur = get_db_connection()
     cur.execute('INSERT INTO products (price, "imageURL", name) VALUES (%s, %s, %s)', (price, imageURL, name))
     if autocommit:

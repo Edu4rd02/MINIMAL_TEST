@@ -143,10 +143,8 @@ def add_product_route():
     product_price = request.form.get('productPrice')
     product_image = request.form.get('productImage')
 
-    # Si los datos están correctos, ejecuta la inserción
     if product_name and product_price and product_image:
-        conn, cur = get_db_connection()  # Obtienes la conexión (esta será la que te da el fixture en las pruebas)
-        create_product(product_price, product_image, product_name, conn=conn, cur=cur)
+        create_product(product_price, product_image, product_name)
         return redirect(url_for('administrador'))
     else:
         return 'Error en el servidor', 400
