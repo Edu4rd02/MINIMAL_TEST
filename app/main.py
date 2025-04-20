@@ -1,20 +1,14 @@
-import sys
 import os
-
-# Agregar directorio de la carpeta static al sys.path para usar correctamente los métodos de db_actions
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'static')))
-print(sys.path)
-
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 import google.auth.transport.requests
 import pathlib
 import requests
 from pip._vendor import cachecontrol
+from app.validations import price_format
 from flask import Flask, abort, redirect, render_template, request, url_for, session, flash
-import psycopg2
-from db.db_actions import get_products, create_product, edit_product, delete_product
-from db.connection import get_db_connection, close_db_connection
+from app.static.db.db_actions import get_products, create_product, edit_product, delete_product
+from app.static.db.connection import get_db_connection, close_db_connection
 
 app = Flask(__name__)   
 
@@ -143,7 +137,7 @@ def add_product_route():
     product_price = request.form.get('productPrice')
     product_image = request.form.get('productImage')
 
-    if product_name and product_price and product_image:
+    if product_name and product_price and product_image and price_format(product_price):
         create_product(product_price, product_image, product_name)
         return redirect(url_for('administrador'))
     else:
@@ -159,7 +153,7 @@ def edit_product_route():
     product_image = request.form.get('productImage')
 
     # Si los datos están correctos, ejecuta la actualización
-    if product_id and product_name and product_price and product_image:
+    if product_id and product_name and product_price and product_image and (price_format(product_price)):
         edit_product(product_id, product_price, product_image, product_name)
         return redirect(url_for('administrador'))
     else:

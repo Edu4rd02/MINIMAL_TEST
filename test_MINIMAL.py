@@ -19,6 +19,8 @@ def test_obtener_productos():
 #Esta funcion cuenta con 2 conjuntos de parametros
 @pytest.mark.parametrize("name, price, image", [
     ("Agua Mineral", "19.99", "image.jpg"),
+    ("Agua Mineral", "-19.99", "image.jpg"),
+    ("Agua Mineral", "gasdfawe", "image.jpg"),
     ("Agua Mineral", "19.99", "")
 ])
 def test_create_product(client, name, price, image):
@@ -42,6 +44,7 @@ def test_create_product(client, name, price, image):
 @pytest.mark.parametrize("name, price, image", [
     ("Agua orga", "19.99", ""),
     ("Agua orga", "-19.99", "image.jpg"),
+    ("Agua orga", "1.5123412412", "image.jpg"),
     ("Agua orga", "19.99", "image.jpg")
 ])
 def test_edit_product(client, name, price, image):
@@ -64,8 +67,8 @@ def test_edit_product(client, name, price, image):
     assert response.status_code == 302  # 302 indica que hubo una redirección
 
 #!Tests para eliminar un producto de la base de datos
-#Se encarga de buscar el ID del producto que se va a eliminar 
-#Al final comprueba que este haya sido eliminado correctamente
+# Se encarga de buscar el ID del producto que se va a eliminar 
+# Al final comprueba que este haya sido eliminado correctamente
 def test_delete_product_form(client):
     conn, cur = get_db_connection()
     cur.execute("SELECT id FROM products WHERE name = %s", ("Agua orga",))
