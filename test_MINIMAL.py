@@ -1,4 +1,6 @@
-from app.main import app
+from flask import session
+from requests import patch
+from app.main import app, check_session
 from app.static.db import db_actions
 from app.static.db.connection import get_db_connection, close_db_connection
 import pytest
@@ -80,3 +82,103 @@ def test_delete_product_form(client):
 
     result = cur.fetchall()
     assert len(result) is 0  # Verifica que el producto exista antes de eliminarlo
+
+#!Tests para verificar la función check_session
+# Esta función comprueba si la sesión contiene un 'google_id' válido.
+# Si 'google_id' está presente en la sesión, la función debe devolver True.
+# Si no está presente, la función debe devolver False.
+def test_check_session():
+    with app.test_request_context():
+        # Verifica que la función devuelve True cuando 'google_id' está en la sesión
+        session['google_id'] = '12345'
+        assert check_session() is True
+
+        # Verifica que la función devuelve False cuando 'google_id' no está en la sesión
+        session.clear()
+        assert check_session() is False
+
+
+#! Tests para la autenticación con Google
+def test_login_with_google_redirect(client):
+    response = client.get('/login_with_google')
+    assert response.status_code == 302
+    assert 'accounts.google.com' in response.location
+
+#!Tests para verificar la ruta index
+def test_index_route(client):
+
+    response = client.get('/')
+    assert response.status_code == 200
+
+    # Verifica que se está utilizando la plantilla index.html
+    assert b'<!DOCTYPE html>' in response.data
+
+#!Tests para verificar la ruta de la tienda
+def test_store_route(client):
+
+    response = client.get('/store')
+    assert response.status_code == 200
+
+    # Verifica que hay productos en la respuesta
+    assert b'products' in response.data
+
+#!Tests para verificar el inicio de sesión del administrador
+@pytest.mark.parametrize("username, password, expected_status", [
+    ("admin", "1234", 302),  # Credenciales correctas - debe redirigir
+    ("admin", "incorrect", 200),  # Contraseña incorrecta - debe mostrar error
+    ("not_admin", "1234", 200),  # Usuario incorrecto - debe mostrar error
+    ("", "", 200)  # Campos vacíos - debe mostrar error
+])
+def test_admin_login(client, username, password, expected_status):
+    data = {
+        "username": username,
+        "password": password
+    }
+    
+    response = client.post("/login", data=data, content_type='application/x-www-form-urlencoded')
+    assert response.status_code == expected_status
+    
+    if username == "admin" and password == "1234":
+        assert response.location == "/administrador"
+    else:
+        assert b'Credenciales incorrectas' in response.data
+
+#!Tests para verificar el cierre de sesión
+def test_logout(client):
+    # Simula una sesión iniciada
+    with client.session_transaction() as session:
+        session['logged_in'] = True
+        session['google_id'] = '12345'
+    
+    # Realiza el cierre de sesión
+    response = client.get("/logout")
+    
+    # Verifica la redirección a la página principal
+    assert response.status_code == 302
+    assert response.location == "/"
+    
+    # Verifica que la sesión se haya borrado
+    with client.session_transaction() as session:
+        assert 'logged_in' not in session
+        assert 'google_id' not in session
+
+#!Tests para verificar la API de información del usuario
+def test_get_user_info_api(client):
+    # Prueba sin sesión iniciada
+    response = client.get("/api/user-info")
+    assert response.status_code == 200
+    # Convierte la respuesta JSON a diccionario
+    data = response.get_json()
+    assert data['isLoggedIn'] is False
+    
+    # Prueba con sesión iniciada con Google
+    with client.session_transaction() as session:
+        session['google_id'] = '12345'
+        session['name'] = 'Test User'
+        session['email'] = 'test@example.com'
+    
+    response = client.get("/api/user-info")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['isLoggedIn'] is True
+    assert data['name'] == 'Test User'
