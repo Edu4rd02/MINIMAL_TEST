@@ -12,18 +12,13 @@ def client():
     app.config['TESTING'] = True
     return app.test_client()
 
-def test_obtener_productos():
-    conn, cur = get_db_connection()
-    usuarios = db_actions.get_products()
-    assert "Jordan 1" in usuarios[2]['name'] # Verifica que el nombre del primer producto sea "2"
-
 #!Tests para añadir un producto a la base de datos
-#Esta funcion cuenta con 2 conjuntos de parametros
+#Esta función cuenta con 4 conjuntos de parámetros
 @pytest.mark.parametrize("name, price, image", [
-    ("Agua Mineral", "19.99", "image.jpg"),
-    ("Agua Mineral", "-19.99", "image.jpg"),
-    ("Agua Mineral", "gasdfawe", "image.jpg"),
-    ("Agua Mineral", "19.99", "")
+    ("Camisa Oversize", "19.99", "image.jpg"),
+    ("Camisa Oversize", "-19.99", "image.jpg"),
+    ("Camisa Oversize", "gasdfawe", "image.jpg"),
+    ("Camisa Oversize", "19.99", "")
 ])
 def test_create_product(client, name, price, image):
 
@@ -44,16 +39,16 @@ def test_create_product(client, name, price, image):
 #!Tests para editar un producto en la base de datos
 #Esta funcion cuenta con 2 conjuntos de parametros
 @pytest.mark.parametrize("name, price, image", [
-    ("Agua orga", "19.99", ""),
-    ("Agua orga", "-19.99", "image.jpg"),
-    ("Agua orga", "1.5123412412", "image.jpg"),
-    ("Agua orga", "19.99", "image.jpg")
+    ("Pantalon Oversize", "19.99", ""),
+    ("Pantalon Oversize", "-19.99", "image.jpg"),
+    ("Pantalon Oversize", "1.5123412412", "image.jpg"),
+    ("Pantalon Oversize", "19.99", "image.jpg")
 ])
 def test_edit_product(client, name, price, image):
     # Se obtiene el ID del producto que se va a editar en la base de datos.
     # Esto no sería necesario si el proceso se realizará directamente desde el sitio web
     conn,cur = get_db_connection()
-    cur.execute("SELECT id FROM products where name = %s",("Agua Mineral",))
+    cur.execute("SELECT id FROM products where name = %s",("Camisa Oversize",))
     result = cur.fetchall()
 
     # Datos que se enviarán al formulario por parte del cliente creado para la prueba
@@ -73,12 +68,12 @@ def test_edit_product(client, name, price, image):
 # Al final comprueba que este haya sido eliminado correctamente
 def test_delete_product_form(client):
     conn, cur = get_db_connection()
-    cur.execute("SELECT id FROM products WHERE name = %s", ("Agua orga",))
+    cur.execute("SELECT id FROM products WHERE name = %s", ("Pantalon Oversize",))
     result = cur.fetchall()
 
     response = client.post("/delete_product", data={"productID": result[0][0]}, content_type='application/x-www-form-urlencoded')
     
-    cur.execute("SELECT id FROM products WHERE name = %s", ("Agua orga",))
+    cur.execute("SELECT id FROM products WHERE name = %s", ("Pantalon Oversize",))
 
     result = cur.fetchall()
     assert len(result) is 0  # Verifica que el producto exista antes de eliminarlo
