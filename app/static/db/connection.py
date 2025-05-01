@@ -5,7 +5,7 @@ import psycopg2
 def get_db_connection():
     try:
         conn = psycopg2.connect(
-            dbname="minimal_products",
+            dbname="minimalproducts",
             user="minimalproducts_user",
             password="16HLKUZiQVLO7Go2tlZ15OjdhZpJ5WlR",
             host="dpg-d09vb5qdbo4c73e5chvg-a.oregon-postgres.render.com",
