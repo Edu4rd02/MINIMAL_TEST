@@ -6,12 +6,12 @@ import psycopg2
 def get_products(): 
     conn, cur = get_db_connection()
     
-    cur.execute("SELECT * FROM products")
+    cur.execute('SELECT id, name, "imageURL", price FROM products')
     products = cur.fetchall()
     close_db_connection(conn, cur)
 
     # Devuelve una lista de diccionarios con los productos que se usará en las páginas para mostrarlos
-    return [{"id": row[0], "price": row[1], "imageURL":row[2], "name":row[3]} for row in products] 
+    return [{"id": row[0], "name":row[1], "imageURL":row[2], "price": row[3]} for row in products] 
 
 
 #Funcion para crear y agregar un nuevo producto a la base de datos
